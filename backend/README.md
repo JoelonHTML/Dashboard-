@@ -3,7 +3,30 @@
 Node.js/Express-service die op de Windows-laptop draait en systeemstats,
 FS25-status en agenda/herinneringen als JSON aanbiedt op het lokale netwerk.
 
-## Setup
+## Snelste route: deze laptop als host inrichten
+
+```powershell
+cd backend\scripts
+.\install-windows-service.ps1
+```
+
+Rechtsklikken en "Uitvoeren met PowerShell" kan ook, zolang je Ja kiest op de
+Administrator-prompt (nodig om een Windows-service te registreren). Dit
+script:
+
+1. Controleert of Node.js geïnstalleerd is.
+2. Draait `npm install`.
+3. Maakt `.env` aan en vraagt interactief om je FS25/agenda/herinneringen-links
+   (Enter overslaan = later zelf invullen in `.env`).
+4. Downloadt NSSM en registreert de service (`DashboardBackend`), met
+   automatisch opstarten en herstart-bij-crash.
+5. Start de service en toont waar je 'm kan testen (`/api/health`).
+
+Verwijderen: `backend\scripts\uninstall-windows-service.ps1`.
+
+Liever alles met de hand doen? Zie hieronder.
+
+## Setup (handmatig)
 
 ```bash
 cd backend
@@ -37,7 +60,7 @@ De service luistert standaard op `http://0.0.0.0:4000` (alleen bereikbaar binnen
 
 Elk endpoint cachet ~30 seconden (instelbaar via `CACHE_TTL_SECONDS`).
 
-## Als Windows-service draaien (aanbevolen: NSSM)
+## Als Windows-service draaien (handmatig, zonder het script)
 
 ```powershell
 nssm install DashboardBackend
@@ -47,7 +70,8 @@ nssm install DashboardBackend
 # Starttype: Automatic
 ```
 
-Zo start de service automatisch op, ook zonder ingelogde gebruiker.
+Zo start de service automatisch op, ook zonder ingelogde gebruiker — precies
+wat `install-windows-service.ps1` hierboven voor je automatiseert.
 
 ## FS25-stats-schema
 
