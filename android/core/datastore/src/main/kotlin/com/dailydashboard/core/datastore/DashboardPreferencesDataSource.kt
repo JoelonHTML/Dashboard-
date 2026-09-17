@@ -6,7 +6,9 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.dailydashboard.core.datastore.model.DataSource
 import com.dailydashboard.core.datastore.model.WidgetConfig
+import com.dailydashboard.core.datastore.model.WidgetSize
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
@@ -87,5 +89,33 @@ class DashboardPreferencesDataSource(private val context: Context) {
         }
     }
 
-    private fun defaultLayout(): List<WidgetConfig> = emptyList()
+    /** Zet de widget-grid terug naar de meegeleverde standaardindeling. */
+    suspend fun resetWidgetLayoutToDefault() {
+        saveWidgetLayout(defaultLayout())
+    }
 }
+
+/**
+ * Vult de grid bij een verse install alvast met een compleet, representatief dashboard
+ * (alle vijf widget-types) in plaats van een lege grid — direct bruikbaar bij eerste opstart.
+ */
+private fun defaultWidget(id: String, size: WidgetSize, dataSource: DataSource, position: Int) = WidgetConfig(
+    id = id,
+    type = dataSource.widgetType,
+    size = size,
+    dataSource = dataSource,
+    position = position,
+)
+
+private fun defaultLayout(): List<WidgetConfig> = listOf(
+    defaultWidget("default-cpu", WidgetSize.SMALL, DataSource.CPU_LOAD, 0),
+    defaultWidget("default-ram", WidgetSize.SMALL, DataSource.RAM_USAGE, 1),
+    defaultWidget("default-disk", WidgetSize.SMALL, DataSource.DISK_USAGE, 2),
+    defaultWidget("default-fs25-players", WidgetSize.SMALL, DataSource.FS25_PLAYER_COUNT, 3),
+    defaultWidget("default-cpu-history", WidgetSize.WIDE, DataSource.CPU_HISTORY, 4),
+    defaultWidget("default-server-load", WidgetSize.WIDE, DataSource.SERVER_LOAD, 5),
+    defaultWidget("default-next-appointment", WidgetSize.WIDE, DataSource.NEXT_APPOINTMENT, 6),
+    defaultWidget("default-agenda-today", WidgetSize.WIDE, DataSource.AGENDA_TODAY, 7),
+    defaultWidget("default-open-reminders", WidgetSize.WIDE, DataSource.OPEN_REMINDERS, 8),
+    defaultWidget("default-fs25-list", WidgetSize.WIDE, DataSource.FS25_PLAYERS, 9),
+)

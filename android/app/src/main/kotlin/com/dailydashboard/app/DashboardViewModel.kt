@@ -11,13 +11,17 @@ import com.dailydashboard.core.datastore.DashboardSettings
 import com.dailydashboard.core.datastore.model.DataSource
 import com.dailydashboard.core.datastore.model.WidgetConfig
 import com.dailydashboard.core.datastore.model.WidgetSize
+import com.dailydashboard.core.network.DashboardApi
+import com.dailydashboard.core.network.DashboardApiFactory
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
@@ -29,8 +33,16 @@ data class DashboardUiState(
     val isNight: Boolean = false,
 )
 
+sealed interface ConnectionTestState {
+    data object Idle : ConnectionTestState
+    data object Testing : ConnectionTestState
+    data object Success : ConnectionTestState
+    data class Failure(val message: String) : ConnectionTestState
+}
+
 class DashboardViewModel(
     private val preferences: DashboardPreferencesDataSource,
+    private val api: DashboardApi,
 ) : ViewModel() {
 
     val uiState: StateFlow<DashboardUiState> = combine(
@@ -98,9 +110,29 @@ class DashboardViewModel(
 
     fun setManualNightOverride(value: Boolean?) = viewModelScope.launch { preferences.setManualNightOverride(value) }
 
+    fun resetToDefaultLayout() = viewModelScope.launch { preferences.resetWidgetLayoutToDefault() }
+
+    private val _connectionTestState = MutableStateFlow<ConnectionTestState>(ConnectionTestState.Idle)
+    val connectionTestState: StateFlow<ConnectionTestState> = _connectionTestState.asStateFlow()
+
+    fun testConnection() {
+        viewModelScope.launch {
+            _connectionTestState.value = ConnectionTestState.Testing
+            _connectionTestState.value = runCatching { api.getHealth() }.fold(
+                onSuccess = { ConnectionTestState.Success },
+                onFailure = { ConnectionTestState.Failure(it.message ?: "Onbekende fout") },
+            )
+        }
+    }
+
     companion object {
         fun factory(context: Context): ViewModelProvider.Factory = viewModelFactory {
-            initializer { DashboardViewModel(DashboardPreferencesDataSource(context.applicationContext)) }
+            initializer {
+                DashboardViewModel(
+                    preferences = DashboardPreferencesDataSource(context.applicationContext),
+                    api = DashboardApiFactory.create(context.applicationContext),
+                )
+            }
         }
     }
 }

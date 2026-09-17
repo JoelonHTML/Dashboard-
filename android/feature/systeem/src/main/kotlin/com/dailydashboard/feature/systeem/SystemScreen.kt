@@ -57,6 +57,41 @@ fun SystemWidgetContent(
             modifier = modifier,
         )
 
+        DataSource.RAM_GAUGE -> GaugeCard(
+            title = "Geheugengebruik",
+            progress = (stats?.ramUsedPercent ?: 0f) / 100f,
+            modifier = modifier,
+        )
+
+        DataSource.DISK_GAUGE -> GaugeCard(
+            title = "Schijfgebruik",
+            progress = (stats?.diskUsedPercent ?: 0f) / 100f,
+            modifier = modifier,
+        )
+
+        DataSource.NETWORK_DOWN -> StatCard(
+            label = "Download",
+            value = stats?.networkDownKBps ?: 0f,
+            unit = " KB/s",
+            valueFormat = { "%.1f".format(it) },
+            modifier = modifier,
+        )
+
+        DataSource.NETWORK_UP -> StatCard(
+            label = "Upload",
+            value = stats?.networkUpKBps ?: 0f,
+            unit = " KB/s",
+            valueFormat = { "%.1f".format(it) },
+            modifier = modifier,
+        )
+
+        DataSource.UPTIME_HOURS -> StatCard(
+            label = "Uptime laptop",
+            value = stats?.uptimeHours ?: 0f,
+            unit = " u",
+            modifier = modifier,
+        )
+
         else -> Unit
     }
 }

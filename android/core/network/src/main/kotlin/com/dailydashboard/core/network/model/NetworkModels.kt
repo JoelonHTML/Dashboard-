@@ -3,6 +3,9 @@ package com.dailydashboard.core.network.model
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class HealthResponse(val status: String)
+
+@Serializable
 data class SystemStatsResponse(
     val cpu: CpuDto,
     val memory: MemoryDto,

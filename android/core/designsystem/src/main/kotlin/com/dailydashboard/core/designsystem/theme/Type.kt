@@ -2,17 +2,19 @@ package com.dailydashboard.core.designsystem.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.dailydashboard.core.designsystem.R
 
 /**
- * Geometrische sans-serif, vet voor grote cijfers, regular/gedempt voor labels.
- * Gebruikt het systeem-sans-serif als drop-in voor Inter — vervang [DashboardFontFamily]
- * door een custom FontFamily(Font(R.font.inter_regular), ...) zodra je de Inter-lettertype-
- * bestanden aan core:designsystem/src/main/res/font toevoegt.
+ * Montserrat (OFL-licentie, meegeleverd als variabel lettertype in res/font,
+ * licentietekst in core:designsystem/licenses) — geometrische sans-serif, vet voor
+ * grote cijfers, regular/gedempt voor labels. Compose synthetiseert bold/semibold
+ * vanuit dit ene regular-instance via de standaard fontSynthesis.
  */
-val DashboardFontFamily = FontFamily.SansSerif
+val DashboardFontFamily = FontFamily(Font(R.font.montserrat_variable))
 
 val DashboardTypography = Typography(
     displayLarge = TextStyle(

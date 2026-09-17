@@ -23,7 +23,10 @@ Zie `PROMPT.md` voor de volledige spec. Het project bestaat uit twee delen:
 
 2. **Android-app** — open de map `android/` in Android Studio, laat Gradle syncen
    (dat downloadt zelf AGP/Compose/Room — kon niet in de cloud-sandbox waarin dit
-   gebouwd is), en vul het backend-adres in via het instellingen-icoon in de app.
+   gebouwd is), en vul het backend-adres in via het instellingen-icoon in de app
+   ("Test verbinding" bevestigt meteen of het adres klopt). De widget-grid start
+   niet leeg: er staat al een complete standaardlay-out klaar met alle vijf
+   widget-types, en de widget-kiezer heeft 21 databronnen om uit te kiezen.
 
 ## Belangrijk: wat nog moet gebeuren op jouw eigen machine
 
@@ -32,7 +35,7 @@ Dit hele project is gebouwd in een cloud-omgeving zonder toegang tot:
 - **Android SDK** (`dl.google.com` was geblokkeerd) → de Android-app is geschreven
   volgens bekende, correcte Kotlin/Compose/Room-patronen maar **nooit gecompileerd**.
   Reken op een eerste sync-ronde in Android Studio met mogelijk kleine fixes.
-  Zie `android/README.md` voor de bekende aandachtspunten (lettertype, launcher-icoon,
+  Zie `android/README.md` voor de bekende aandachtspunten (launcher-icoon,
   handmatige DI in plaats van Hilt).
 - **Jouw wifi-netwerk, laptop en FS25-server** → ik kon dus niet live tegen jouw
   echte FS25-stats-feed of iCloud-agenda testen. `backend/src/services/fs25Service.js`

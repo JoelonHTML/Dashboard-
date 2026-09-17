@@ -37,19 +37,34 @@ Zie de hoofdmap-`PROMPT.md` voor de volledige spec. Kort:
   offline-first Repository + ViewModel + widget-content-composable.
 - `core:network` — Retrofit-client met een dynamisch instelbaar backend-adres.
 - `core:database` — Room, source of truth voor alle feature-data.
-- `core:designsystem` — kleurtokens, typografie, basiscomponenten (1-op-1 uit de spec).
+- `core:designsystem` — kleurtokens, typografie (Montserrat), basiscomponenten (1-op-1 uit de spec).
 - `core:ui` — de vijf herbruikbare widget-kaarten (`StatCard`, `ChartCard`, `GaugeCard`,
   `CalloutCard`, `ListCard`), los van databron.
-- `core:datastore` — widget-layout en instellingen (DataStore Preferences + JSON).
+- `core:datastore` — widget-layout en instellingen (DataStore Preferences + JSON), inclusief
+  een ingevulde standaardlay-out zodat een verse install nooit leeg start.
+
+## Direct een goed dashboard bij eerste opstart
+
+- **Standaardlay-out**: een verse install toont meteen 10 widgets (alle vijf types) —
+  geen lege grid. Via instellingen → "Herstel standaardindeling" kom je hier altijd op terug.
+- **21 databronnen** om uit te kiezen in de widget-kiezer (bewerkmodus → ➕), o.a.
+  CPU/RAM/schijf (als cijfer én als meter), netwerksnelheid, laptop-uptime, FS25-spelersaantal/
+  -activiteit/-lijst/-actieve map, agenda, herinneringen, batterij en dagvoortgang.
+- **"Test verbinding"-knop** in instellingen: pingt `/api/health` op de backend en toont
+  direct of het ingevulde adres klopt — handig bij het invullen van het laptop-IP.
+
+## Lettertype
+
+Montserrat (variabel lettertype, SIL Open Font License) zit al in
+`core/designsystem/src/main/res/font/montserrat_variable.ttf`, licentietekst in
+`core/designsystem/licenses/`. Geen extra download of Play Services nodig — werkt
+direct na de eerste Gradle-sync.
 
 ## Bekende beperkingen / nog te doen op je eigen machine
 
 - **Niet gecompileerd**: deze sandbox had geen Android SDK-toegang, dus de code is
   geschreven volgens bekende, correcte patronen maar niet build-geverifieerd. Verwacht
   een eerste sync/build-ronde in Android Studio met mogelijk kleine fixes.
-- **Lettertype**: gebruikt `FontFamily.SansSerif` als drop-in voor Inter. Voeg zelf
-  Inter-`.ttf`-bestanden toe aan `core/designsystem/src/main/res/font` en wijzig
-  `DashboardFontFamily` in `Type.kt` voor de exacte typografie uit de referentie.
 - **Launcher-icoon**: verwijst nu naar een systeem-standaardicoon
   (`@android:drawable/sym_def_app_icon`). Vervang via Android Studio's Image Asset-tool.
 - **Drag-and-drop**: zelfgeschreven (geen externe reorder-library), met

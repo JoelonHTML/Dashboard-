@@ -19,8 +19,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.dailydashboard.app.ConnectionTestState
 import com.dailydashboard.core.datastore.DashboardSettings
+import com.dailydashboard.core.designsystem.theme.DashboardTheme
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
@@ -29,12 +32,15 @@ private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 @Composable
 fun SettingsSheet(
     settings: DashboardSettings,
+    connectionTestState: ConnectionTestState,
     onDismiss: () -> Unit,
     onBackendUrlChanged: (String) -> Unit,
+    onTestConnection: () -> Unit,
     onPollIntervalChanged: (Int) -> Unit,
     onNightModeEnabledChanged: (Boolean) -> Unit,
     onNightWindowChanged: (startMinute: Int, endMinute: Int) -> Unit,
     onManualOverrideChanged: (Boolean?) -> Unit,
+    onResetLayout: () -> Unit,
 ) {
     var backendUrl by remember(settings.backendBaseUrl) { mutableStateOf(settings.backendBaseUrl) }
     var startText by remember(settings.nightStartMinute) { mutableStateOf(minuteToText(settings.nightStartMinute)) }
@@ -55,9 +61,15 @@ fun SettingsSheet(
                 label = { Text("Backend-adres (http://laptop-ip:4000)") },
                 modifier = Modifier.fillMaxWidth(),
             )
-            OutlinedButton(onClick = { onBackendUrlChanged(backendUrl) }, modifier = Modifier.fillMaxWidth()) {
-                Text("Adres opslaan")
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedButton(onClick = { onBackendUrlChanged(backendUrl) }, modifier = Modifier.weight(1f)) {
+                    Text("Adres opslaan")
+                }
+                OutlinedButton(onClick = onTestConnection, modifier = Modifier.weight(1f)) {
+                    Text("Test verbinding")
+                }
             }
+            ConnectionTestStatusLine(connectionTestState)
 
             HorizontalDivider()
 
@@ -110,8 +122,27 @@ fun SettingsSheet(
                 OutlinedButton(onClick = { onManualOverrideChanged(false) }) { Text("Altijd dag") }
                 OutlinedButton(onClick = { onManualOverrideChanged(true) }) { Text("Altijd nacht") }
             }
+
+            HorizontalDivider()
+
+            Text(text = "Widget-lay-out", style = MaterialTheme.typography.bodyMedium)
+            OutlinedButton(onClick = onResetLayout, modifier = Modifier.fillMaxWidth()) {
+                Text("Herstel standaardindeling")
+            }
         }
     }
+}
+
+@Composable
+private fun ConnectionTestStatusLine(state: ConnectionTestState) {
+    val colors = DashboardTheme.colors
+    val (text, color) = when (state) {
+        is ConnectionTestState.Idle -> return
+        is ConnectionTestState.Testing -> "Verbinden…" to colors.textSecondary
+        is ConnectionTestState.Success -> "✓ Verbonden met de backend" to colors.accent
+        is ConnectionTestState.Failure -> "✗ Niet bereikbaar — ${state.message}" to colors.alert
+    }
+    Text(text = text, style = MaterialTheme.typography.bodyMedium, color = color)
 }
 
 private fun minuteToText(minuteOfDay: Int): String =

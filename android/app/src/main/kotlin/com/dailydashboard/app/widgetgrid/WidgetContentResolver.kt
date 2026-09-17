@@ -18,11 +18,17 @@ fun WidgetContent(widget: WidgetConfig, modifier: Modifier = Modifier) {
         DataSource.DISK_USAGE,
         DataSource.CPU_HISTORY,
         DataSource.SERVER_LOAD,
+        DataSource.RAM_GAUGE,
+        DataSource.DISK_GAUGE,
+        DataSource.NETWORK_DOWN,
+        DataSource.NETWORK_UP,
+        DataSource.UPTIME_HOURS,
         -> SystemWidgetContent(dataSource = widget.dataSource, modifier = modifier)
 
         DataSource.FS25_PLAYER_COUNT,
         DataSource.FS25_ACTIVITY,
         DataSource.FS25_PLAYERS,
+        DataSource.FS25_MAP,
         -> Fs25WidgetContent(dataSource = widget.dataSource, modifier = modifier)
 
         DataSource.NEXT_APPOINTMENT,

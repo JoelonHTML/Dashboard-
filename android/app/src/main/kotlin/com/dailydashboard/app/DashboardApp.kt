@@ -37,6 +37,7 @@ fun DashboardApp() {
     val context = LocalContext.current
     val viewModel: DashboardViewModel = viewModel(factory = DashboardViewModel.factory(context))
     val uiState by viewModel.uiState.collectAsState()
+    val connectionTestState by viewModel.connectionTestState.collectAsState()
 
     var isEditMode by remember { mutableStateOf(false) }
     var showAddSheet by remember { mutableStateOf(false) }
@@ -107,12 +108,15 @@ fun DashboardApp() {
         if (showSettingsSheet) {
             SettingsSheet(
                 settings = uiState.settings,
+                connectionTestState = connectionTestState,
                 onDismiss = { showSettingsSheet = false },
                 onBackendUrlChanged = viewModel::updateBackendBaseUrl,
+                onTestConnection = viewModel::testConnection,
                 onPollIntervalChanged = viewModel::updatePollIntervalSeconds,
                 onNightModeEnabledChanged = viewModel::updateNightModeEnabled,
                 onNightWindowChanged = viewModel::updateNightWindow,
                 onManualOverrideChanged = viewModel::setManualNightOverride,
+                onResetLayout = viewModel::resetToDefaultLayout,
             )
         }
     }

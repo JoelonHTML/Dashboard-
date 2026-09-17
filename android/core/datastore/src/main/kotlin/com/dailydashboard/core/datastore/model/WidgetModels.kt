@@ -31,6 +31,9 @@ enum class DataSource(val widgetType: WidgetType) {
     DISK_USAGE(WidgetType.STAT_CARD),
     FS25_PLAYER_COUNT(WidgetType.STAT_CARD),
     TASKS_TODAY_COUNT(WidgetType.STAT_CARD),
+    NETWORK_DOWN(WidgetType.STAT_CARD),
+    NETWORK_UP(WidgetType.STAT_CARD),
+    UPTIME_HOURS(WidgetType.STAT_CARD),
 
     CPU_HISTORY(WidgetType.CHART_CARD),
     FS25_ACTIVITY(WidgetType.CHART_CARD),
@@ -38,9 +41,12 @@ enum class DataSource(val widgetType: WidgetType) {
     SERVER_LOAD(WidgetType.GAUGE_CARD),
     DAY_PROGRESS(WidgetType.GAUGE_CARD),
     BATTERY(WidgetType.GAUGE_CARD),
+    RAM_GAUGE(WidgetType.GAUGE_CARD),
+    DISK_GAUGE(WidgetType.GAUGE_CARD),
 
     NEXT_APPOINTMENT(WidgetType.CALLOUT_CARD),
     TOP_REMINDER(WidgetType.CALLOUT_CARD),
+    FS25_MAP(WidgetType.CALLOUT_CARD),
 
     AGENDA_TODAY(WidgetType.LIST_CARD),
     OPEN_REMINDERS(WidgetType.LIST_CARD),

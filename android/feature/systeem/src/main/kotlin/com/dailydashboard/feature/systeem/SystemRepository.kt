@@ -64,6 +64,8 @@ private fun combineCurrentAndHistory(dao: SystemStatsDao): Flow<SystemStats?> {
                 cpuLoadPercent = it.cpuLoadPercent.toFloat(),
                 ramUsedPercent = it.ramUsedPercent.toFloat(),
                 diskUsedPercent = it.diskUsedPercent?.toFloat(),
+                networkDownKBps = it.rxSecBytes?.let { bytes -> bytes / 1024f },
+                networkUpKBps = it.txSecBytes?.let { bytes -> bytes / 1024f },
                 uptimeSeconds = it.uptimeSeconds,
                 cpuHistory = history.sortedBy { point -> point.timestamp }.map { point -> point.cpuLoadPercent.toFloat() },
                 updatedAt = it.updatedAt,

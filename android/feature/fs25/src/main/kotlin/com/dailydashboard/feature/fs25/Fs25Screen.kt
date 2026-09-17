@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dailydashboard.core.datastore.model.DataSource
+import com.dailydashboard.core.ui.widgets.CalloutCard
 import com.dailydashboard.core.ui.widgets.ChartCard
 import com.dailydashboard.core.ui.widgets.ListCard
 import com.dailydashboard.core.ui.widgets.ListRowData
@@ -42,6 +43,16 @@ fun Fs25WidgetContent(
                 ListRowData(marker = "${index + 1}", primaryText = name)
             } ?: emptyList(),
             emptyText = if (stats?.online == false) "Server offline" else "Geen spelers online",
+            modifier = modifier,
+        )
+
+        DataSource.FS25_MAP -> CalloutCard(
+            title = stats?.mapName ?: "Onbekende map",
+            subtitle = if (stats?.online == true) {
+                "${stats.serverName ?: "FS25-server"} · online"
+            } else {
+                "FS25-server offline"
+            },
             modifier = modifier,
         )
 
