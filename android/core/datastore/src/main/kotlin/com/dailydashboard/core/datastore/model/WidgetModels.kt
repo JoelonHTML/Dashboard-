@@ -34,6 +34,9 @@ enum class DataSource(val widgetType: WidgetType) {
     NETWORK_DOWN(WidgetType.STAT_CARD),
     NETWORK_UP(WidgetType.STAT_CARD),
     UPTIME_HOURS(WidgetType.STAT_CARD),
+    LAPTOP_BATTERY_PERCENT(WidgetType.STAT_CARD),
+    CPU_TEMP(WidgetType.STAT_CARD),
+    WEATHER_TEMP(WidgetType.STAT_CARD),
 
     CPU_HISTORY(WidgetType.CHART_CARD),
     FS25_ACTIVITY(WidgetType.CHART_CARD),
@@ -43,14 +46,19 @@ enum class DataSource(val widgetType: WidgetType) {
     BATTERY(WidgetType.GAUGE_CARD),
     RAM_GAUGE(WidgetType.GAUGE_CARD),
     DISK_GAUGE(WidgetType.GAUGE_CARD),
+    LAPTOP_BATTERY_GAUGE(WidgetType.GAUGE_CARD),
+    FS25_DAY_PROGRESS(WidgetType.GAUGE_CARD),
 
     NEXT_APPOINTMENT(WidgetType.CALLOUT_CARD),
     TOP_REMINDER(WidgetType.CALLOUT_CARD),
     FS25_MAP(WidgetType.CALLOUT_CARD),
+    CLOCK(WidgetType.CALLOUT_CARD),
 
     AGENDA_TODAY(WidgetType.LIST_CARD),
     OPEN_REMINDERS(WidgetType.LIST_CARD),
     FS25_PLAYERS(WidgetType.LIST_CARD),
+    NS_DEPARTURES(WidgetType.LIST_CARD),
+    WEATHER_FORECAST(WidgetType.LIST_CARD),
     ;
 
     companion object {

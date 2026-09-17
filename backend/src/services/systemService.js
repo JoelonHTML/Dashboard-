@@ -1,12 +1,14 @@
 const si = require("systeminformation");
 
 async function getSystemStats() {
-  const [cpu, mem, fsSize, networkStats, time] = await Promise.all([
+  const [cpu, mem, fsSize, networkStats, time, battery, cpuTemp] = await Promise.all([
     si.currentLoad(),
     si.mem(),
     si.fsSize(),
     si.networkStats(),
     Promise.resolve(si.time()),
+    si.battery().catch(() => null),
+    si.cpuTemperature().catch(() => null),
   ]);
 
   const primaryDisk = fsSize[0] ?? null;
@@ -34,6 +36,15 @@ async function getSystemStats() {
           txSec: Math.round(primaryNetwork.tx_sec ?? 0),
         }
       : null,
+    // Laptop-batterij: alleen relevant/aanwezig als de laptop 'm daadwerkelijk heeft.
+    battery: battery && battery.hasBattery
+      ? {
+          percent: Math.round(battery.percent),
+          isCharging: Boolean(battery.isCharging),
+        }
+      : null,
+    // Niet elke laptop/OS geeft een bruikbare temperatuursensor terug (main = -1 dan).
+    cpuTempCelsius: cpuTemp && cpuTemp.main > 0 ? Math.round(cpuTemp.main * 10) / 10 : null,
     uptimeSeconds: time.uptime,
     updatedAt: new Date().toISOString(),
   };

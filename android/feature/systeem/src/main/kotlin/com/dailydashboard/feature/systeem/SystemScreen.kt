@@ -92,6 +92,26 @@ fun SystemWidgetContent(
             modifier = modifier,
         )
 
+        DataSource.LAPTOP_BATTERY_PERCENT -> StatCard(
+            label = if (stats?.batteryCharging == true) "Batterij (opladen)" else "Batterij laptop",
+            value = stats?.batteryPercent?.toFloat() ?: 0f,
+            unit = "%",
+            modifier = modifier,
+        )
+
+        DataSource.LAPTOP_BATTERY_GAUGE -> GaugeCard(
+            title = "Batterij laptop",
+            progress = (stats?.batteryPercent?.toFloat() ?: 0f) / 100f,
+            modifier = modifier,
+        )
+
+        DataSource.CPU_TEMP -> StatCard(
+            label = "CPU-temperatuur",
+            value = stats?.cpuTempCelsius ?: 0f,
+            unit = "°C",
+            modifier = modifier,
+        )
+
         else -> Unit
     }
 }

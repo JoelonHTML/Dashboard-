@@ -14,9 +14,31 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import com.dailydashboard.core.ui.clock.rememberCurrentDateTime
+import com.dailydashboard.core.ui.widgets.CalloutCard
 import com.dailydashboard.core.ui.widgets.GaugeCard
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
 import kotlinx.coroutines.delay
+
+private val clockTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+private val clockDateFormatter = DateTimeFormatter.ofPattern("d MMMM", Locale("nl"))
+
+/** Klok-widget voor in het grid — deelt dezelfde tikkende klok als de vaste top-bar-klok. */
+@Composable
+fun ClockCalloutWidget(modifier: Modifier = Modifier) {
+    val now = rememberCurrentDateTime()
+    val dayName = now.dayOfWeek.getDisplayName(TextStyle.FULL, Locale("nl"))
+        .replaceFirstChar { it.uppercase() }
+
+    CalloutCard(
+        title = now.format(clockTimeFormatter),
+        subtitle = "$dayName ${now.format(clockDateFormatter)}",
+        modifier = modifier,
+    )
+}
 
 /** Batterijniveau en dagvoortgang komen rechtstreeks van het OS/de klok — geen backend nodig. */
 @Composable

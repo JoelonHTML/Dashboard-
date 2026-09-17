@@ -41,16 +41,16 @@ import com.dailydashboard.core.datastore.model.WidgetSize
 import com.dailydashboard.core.designsystem.theme.DashboardTheme
 import com.dailydashboard.core.designsystem.theme.DashboardTokens
 
-private val WidgetSize.columnSpan: Int
-    get() = when (this) {
-        WidgetSize.SMALL -> 1
-        WidgetSize.WIDE -> 2
-        WidgetSize.LARGE -> 4
-    }
+private fun WidgetSize.columnSpan(gridColumns: Int): Int = when (this) {
+    WidgetSize.SMALL -> 1
+    WidgetSize.WIDE -> minOf(2, gridColumns)
+    WidgetSize.LARGE -> gridColumns
+}
 
 /**
- * Grid met vier kolommen. In bewerkmodus kun je een kaart lang indrukken en verslepen
- * (spring-achtige animatie via animateFloatAsState), van formaat wisselen, of verwijderen.
+ * Grid met een instelbaar aantal kolommen (zie instellingen). In bewerkmodus kun je een
+ * kaart lang indrukken en verslepen (spring-achtige animatie via animateFloatAsState),
+ * van formaat wisselen, of verwijderen.
  */
 @Composable
 fun WidgetGrid(
@@ -60,6 +60,7 @@ fun WidgetGrid(
     onRemove: (WidgetConfig) -> Unit,
     onCycleSize: (WidgetConfig) -> Unit,
     modifier: Modifier = Modifier,
+    gridColumns: Int = 4,
 ) {
     val itemBounds = remember { mutableStateOf(mapOf<String, Rect>()) }
     var draggedId by remember { mutableStateOf<String?>(null) }
@@ -67,13 +68,13 @@ fun WidgetGrid(
     val currentWidgets by rememberUpdatedState(widgets)
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(4),
+        columns = GridCells.Fixed(gridColumns),
         modifier = modifier,
         contentPadding = androidx.compose.foundation.layout.PaddingValues(DashboardTokens.spacingGrid),
         horizontalArrangement = Arrangement.spacedBy(DashboardTokens.spacingGrid),
         verticalArrangement = Arrangement.spacedBy(DashboardTokens.spacingGrid),
     ) {
-        items(widgets, key = { it.id }, span = { GridItemSpan(it.size.columnSpan) }) { widget ->
+        items(widgets, key = { it.id }, span = { GridItemSpan(it.size.columnSpan(gridColumns)) }) { widget ->
             val isDragged = widget.id == draggedId
             val animatedX by animateFloatAsState(if (isDragged) dragOffset.x else 0f, label = "dragX")
             val animatedY by animateFloatAsState(if (isDragged) dragOffset.y else 0f, label = "dragY")

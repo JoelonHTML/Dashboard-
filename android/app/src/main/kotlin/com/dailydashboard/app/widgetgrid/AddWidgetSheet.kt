@@ -45,6 +45,14 @@ private val dataSourceLabels = mapOf(
     DataSource.AGENDA_TODAY to "Agenda vandaag",
     DataSource.OPEN_REMINDERS to "Openstaande herinneringen",
     DataSource.FS25_PLAYERS to "FS25-spelerslijst",
+    DataSource.LAPTOP_BATTERY_PERCENT to "Batterij laptop",
+    DataSource.CPU_TEMP to "CPU-temperatuur",
+    DataSource.WEATHER_TEMP to "Weer — temperatuur",
+    DataSource.LAPTOP_BATTERY_GAUGE to "Batterij laptop (meter)",
+    DataSource.FS25_DAY_PROGRESS to "FS25-dagvoortgang",
+    DataSource.CLOCK to "Klok",
+    DataSource.NS_DEPARTURES to "Trein — Lage Zwaluwe",
+    DataSource.WEATHER_FORECAST to "Weersverwachting",
 )
 
 /** Kiezer met alle vijf widget-types; per type alleen de databronnen die erbij passen. */

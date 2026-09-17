@@ -25,6 +25,8 @@ private object Keys {
     val NIGHT_END_MINUTE = intPreferencesKey("night_end_minute")
     val MANUAL_NIGHT_OVERRIDE = booleanPreferencesKey("manual_night_override")
     val HAS_MANUAL_NIGHT_OVERRIDE = booleanPreferencesKey("has_manual_night_override")
+    val ACCENT_COLOR_HEX = stringPreferencesKey("accent_color_hex")
+    val GRID_COLUMNS = intPreferencesKey("grid_columns")
 }
 
 /** Source of truth voor widget-layout en instellingen — overleeft een herstart. */
@@ -45,6 +47,8 @@ class DashboardPreferencesDataSource(private val context: Context) {
             } else {
                 null
             },
+            accentColorHex = prefs[Keys.ACCENT_COLOR_HEX] ?: defaults.accentColorHex,
+            gridColumns = prefs[Keys.GRID_COLUMNS] ?: defaults.gridColumns,
         )
     }
 
@@ -92,6 +96,17 @@ class DashboardPreferencesDataSource(private val context: Context) {
     /** Zet de widget-grid terug naar de meegeleverde standaardindeling. */
     suspend fun resetWidgetLayoutToDefault() {
         saveWidgetLayout(defaultLayout())
+    }
+
+    /** [hex] als "#RRGGBB", of null om terug te vallen op de standaard-accentkleur van het thema. */
+    suspend fun updateAccentColor(hex: String?) {
+        context.dashboardDataStore.edit { prefs ->
+            if (hex == null) prefs.remove(Keys.ACCENT_COLOR_HEX) else prefs[Keys.ACCENT_COLOR_HEX] = hex
+        }
+    }
+
+    suspend fun updateGridColumns(columns: Int) {
+        context.dashboardDataStore.edit { prefs -> prefs[Keys.GRID_COLUMNS] = columns.coerceIn(2, 6) }
     }
 }
 

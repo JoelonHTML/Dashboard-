@@ -42,6 +42,8 @@ dependencies {
     implementation(project(":feature:herinneringen"))
     implementation(project(":feature:systeem"))
     implementation(project(":feature:fs25"))
+    implementation(project(":feature:ns"))
+    implementation(project(":feature:weer"))
 
     implementation(project(":core:network"))
     implementation(project(":core:database"))

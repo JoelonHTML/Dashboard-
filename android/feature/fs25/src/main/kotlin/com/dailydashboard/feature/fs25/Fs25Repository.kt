@@ -35,6 +35,7 @@ internal class OfflineFirstFs25Repository(
                     maxPlayers = it.maxPlayers ?: 0,
                     playerNames = runCatching { json.decodeFromString<List<String>>(it.playerNamesJson) }.getOrDefault(emptyList()),
                     activityHistory = history.sortedBy { point -> point.timestamp }.map { point -> point.playerCount.toFloat() },
+                    inGameDayMinute = it.inGameDayMinute,
                     updatedAt = it.updatedAt,
                 )
             }
@@ -52,6 +53,7 @@ internal class OfflineFirstFs25Repository(
                 playerCount = response.playerCount,
                 maxPlayers = response.maxPlayers,
                 playerNamesJson = json.encodeToString(response.players.map { it.name }),
+                inGameDayMinute = response.dayTime?.minute,
                 version = response.version,
                 updatedAt = response.updatedAt,
             ),

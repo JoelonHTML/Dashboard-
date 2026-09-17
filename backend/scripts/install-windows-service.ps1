@@ -10,7 +10,8 @@
   PowerShell", of in een Administrator-PowerShell: .\install-windows-service.ps1
 
   Non-interactief (bv. vanuit Claude Code of een ander script):
-  .\install-windows-service.ps1 -Fs25Url "..." -CalendarUrl "..." -RemindersUrl "..." -Port 4000
+  .\install-windows-service.ps1 -Fs25Url "..." -CalendarUrl "..." -RemindersUrl "..." `
+    -NsApiKey "..." -NsStationCode "LZ" -Port 4000
   Weggelaten parameters blijven leeg in .env (later handmatig aan te vullen)
   in plaats van dat er om invoer gevraagd wordt.
 #>
@@ -19,6 +20,8 @@ param(
     [string]$Fs25Url,
     [string]$CalendarUrl,
     [string]$RemindersUrl,
+    [string]$NsApiKey,
+    [string]$NsStationCode,
     [string]$Port,
     [switch]$NonInteractive
 )
@@ -53,6 +56,8 @@ if (-not (Test-Path $envPath)) {
     $fs25Url = $Fs25Url
     $calendarUrl = $CalendarUrl
     $remindersUrl = $RemindersUrl
+    $nsApiKey = $NsApiKey
+    $nsStationCode = $NsStationCode
 
     if (-not $NonInteractive) {
         Write-Host "`nGeen .env gevonden — die maken we nu aan. Druk Enter om een veld leeg/standaard te laten." -ForegroundColor Yellow
@@ -60,10 +65,13 @@ if (-not (Test-Path $envPath)) {
         if ([string]::IsNullOrWhiteSpace($fs25Url)) { $fs25Url = Read-Host "FS25 stats-feed URL (leeg = later zelf invullen in .env)" }
         if ([string]::IsNullOrWhiteSpace($calendarUrl)) { $calendarUrl = Read-Host "Publieke iCloud-agenda .ics-link (leeg = later invullen)" }
         if ([string]::IsNullOrWhiteSpace($remindersUrl)) { $remindersUrl = Read-Host "Publieke iCloud-Herinneringen .ics-link (leeg = later invullen)" }
+        if ([string]::IsNullOrWhiteSpace($nsApiKey)) { $nsApiKey = Read-Host "NS-API-key voor treinvertrektijden (leeg = later invullen, geen NS-widget zonder key)" }
+        if ([string]::IsNullOrWhiteSpace($nsStationCode)) { $nsStationCode = Read-Host "NS-stationscode [LZ = Lage Zwaluwe]" }
     } else {
         Write-Host "`nGeen .env gevonden — die maken we aan met de meegegeven parameters (non-interactief)." -ForegroundColor Yellow
     }
     if ([string]::IsNullOrWhiteSpace($port)) { $port = "4000" }
+    if ([string]::IsNullOrWhiteSpace($nsStationCode)) { $nsStationCode = "LZ" }
 
     @"
 LAN_HOST=0.0.0.0
@@ -71,7 +79,12 @@ PORT=$port
 FS25_STATS_URL=$fs25Url
 CALENDAR_ICS_URL=$calendarUrl
 REMINDERS_ICS_URL=$remindersUrl
-CACHE_TTL_SECONDS=30
+NS_API_KEY=$nsApiKey
+NS_STATION_CODE=$nsStationCode
+CACHE_TTL_SECONDS=3
+SLOW_CACHE_TTL_SECONDS=60
+WEATHER_LAT=51.686
+WEATHER_LON=4.685
 "@ | Set-Content -Path $envPath -Encoding UTF8
 
     Write-Host ".env aangemaakt op $envPath. Pas 'm later aan met Kladblok als je nog links moet toevoegen."

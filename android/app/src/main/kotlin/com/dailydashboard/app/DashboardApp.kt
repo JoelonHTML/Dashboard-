@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -32,6 +34,13 @@ import com.dailydashboard.app.settings.SettingsSheet
 import com.dailydashboard.app.widgetgrid.AddWidgetSheet
 import com.dailydashboard.app.widgetgrid.WidgetGrid
 import com.dailydashboard.core.designsystem.theme.DashboardTheme
+import com.dailydashboard.core.ui.clock.rememberCurrentDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle as JavaTimeTextStyle
+import java.util.Locale
+
+private val topBarTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+private val topBarDateFormatter = DateTimeFormatter.ofPattern("d MMMM", Locale("nl"))
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +55,13 @@ fun DashboardApp() {
     var showSettingsSheet by remember { mutableStateOf(false) }
     var hasLoaded by remember { mutableStateOf(false) }
 
-    DashboardTheme(isNight = uiState.isNight) {
+    val accentColorOverride = remember(uiState.settings.accentColorHex) {
+        uiState.settings.accentColorHex?.let { hex ->
+            runCatching { androidx.compose.ui.graphics.Color(android.graphics.Color.parseColor(hex)) }.getOrNull()
+        }
+    }
+
+    DashboardTheme(isNight = uiState.isNight, accentColorOverride = accentColorOverride) {
         LaunchedEffectOnce { hasLoaded = true }
         DimScreenForNightMode(isNight = uiState.isNight)
 
@@ -54,7 +69,7 @@ fun DashboardApp() {
             containerColor = DashboardTheme.colors.background,
             topBar = {
                 TopAppBar(
-                    title = { Text("Daily Dashboard") },
+                    title = { LiveClockTitle() },
                     actions = {
                         androidx.compose.material3.IconButton(onClick = { showSettingsSheet = true }) {
                             Icon(Icons.Filled.Settings, contentDescription = "Instellingen")
@@ -92,6 +107,7 @@ fun DashboardApp() {
                         onRemove = { viewModel.removeWidget(it.id) },
                         onCycleSize = { viewModel.cycleWidgetSize(it.id) },
                         modifier = Modifier.fillMaxSize(),
+                        gridColumns = uiState.settings.gridColumns,
                     )
                 }
             }
@@ -119,6 +135,8 @@ fun DashboardApp() {
                 onNightWindowChanged = viewModel::updateNightWindow,
                 onManualOverrideChanged = viewModel::setManualNightOverride,
                 onResetLayout = viewModel::resetToDefaultLayout,
+                onAccentColorChanged = viewModel::updateAccentColor,
+                onGridColumnsChanged = viewModel::updateGridColumns,
             )
         }
     }
@@ -127,6 +145,25 @@ fun DashboardApp() {
 @Composable
 private fun LaunchedEffectOnce(block: () -> Unit) {
     androidx.compose.runtime.LaunchedEffect(Unit) { block() }
+}
+
+/** Vaste klok in de top-bar — clean lettertype (Montserrat), elke seconde bijgewerkt. */
+@Composable
+private fun LiveClockTitle() {
+    val now = rememberCurrentDateTime()
+    val dayName = now.dayOfWeek.getDisplayName(JavaTimeTextStyle.FULL, Locale("nl"))
+        .replaceFirstChar { it.uppercase() }
+
+    Column {
+        Text(
+            text = now.format(topBarTimeFormatter),
+            style = MaterialTheme.typography.headlineMedium,
+        )
+        Text(
+            text = "$dayName ${now.format(topBarDateFormatter)}",
+            style = MaterialTheme.typography.labelSmall,
+        )
+    }
 }
 
 /** Zachte crossfade van schermhelderheid bij het in-/uitschakelen van nachtmodus, geen harde knip. */

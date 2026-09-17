@@ -4,6 +4,9 @@
   "description": "Lokale Node.js/Express-service voor het Daily Dashboard: systeemstats, FS25-status en agenda/herinneringen.",
   "main": "src/index.js",
   "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js"

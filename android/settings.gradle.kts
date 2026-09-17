@@ -22,6 +22,8 @@ include(":feature:agenda")
 include(":feature:herinneringen")
 include(":feature:systeem")
 include(":feature:fs25")
+include(":feature:ns")
+include(":feature:weer")
 
 include(":core:network")
 include(":core:database")

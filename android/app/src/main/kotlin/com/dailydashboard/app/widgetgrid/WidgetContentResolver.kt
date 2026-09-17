@@ -7,7 +7,9 @@ import com.dailydashboard.core.datastore.model.WidgetConfig
 import com.dailydashboard.feature.agenda.AgendaWidgetContent
 import com.dailydashboard.feature.fs25.Fs25WidgetContent
 import com.dailydashboard.feature.herinneringen.ReminderWidgetContent
+import com.dailydashboard.feature.ns.NsWidgetContent
 import com.dailydashboard.feature.systeem.SystemWidgetContent
+import com.dailydashboard.feature.weer.WeatherWidgetContent
 
 /** Koppelt elke widget aan zijn feature-module — of, voor batterij/dagvoortgang, aan het OS zelf. */
 @Composable
@@ -23,12 +25,16 @@ fun WidgetContent(widget: WidgetConfig, modifier: Modifier = Modifier) {
         DataSource.NETWORK_DOWN,
         DataSource.NETWORK_UP,
         DataSource.UPTIME_HOURS,
+        DataSource.LAPTOP_BATTERY_PERCENT,
+        DataSource.LAPTOP_BATTERY_GAUGE,
+        DataSource.CPU_TEMP,
         -> SystemWidgetContent(dataSource = widget.dataSource, modifier = modifier)
 
         DataSource.FS25_PLAYER_COUNT,
         DataSource.FS25_ACTIVITY,
         DataSource.FS25_PLAYERS,
         DataSource.FS25_MAP,
+        DataSource.FS25_DAY_PROGRESS,
         -> Fs25WidgetContent(dataSource = widget.dataSource, modifier = modifier)
 
         DataSource.NEXT_APPOINTMENT,
@@ -40,7 +46,14 @@ fun WidgetContent(widget: WidgetConfig, modifier: Modifier = Modifier) {
         DataSource.OPEN_REMINDERS,
         -> ReminderWidgetContent(dataSource = widget.dataSource, modifier = modifier)
 
+        DataSource.NS_DEPARTURES -> NsWidgetContent(dataSource = widget.dataSource, modifier = modifier)
+
+        DataSource.WEATHER_TEMP,
+        DataSource.WEATHER_FORECAST,
+        -> WeatherWidgetContent(dataSource = widget.dataSource, modifier = modifier)
+
         DataSource.DAY_PROGRESS -> DayProgressGaugeWidget(modifier = modifier)
         DataSource.BATTERY -> BatteryGaugeWidget(modifier = modifier)
+        DataSource.CLOCK -> ClockCalloutWidget(modifier = modifier)
     }
 }

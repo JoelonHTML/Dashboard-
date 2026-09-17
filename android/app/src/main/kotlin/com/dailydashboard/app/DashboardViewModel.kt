@@ -112,6 +112,10 @@ class DashboardViewModel(
 
     fun resetToDefaultLayout() = viewModelScope.launch { preferences.resetWidgetLayoutToDefault() }
 
+    fun updateAccentColor(hex: String?) = viewModelScope.launch { preferences.updateAccentColor(hex) }
+
+    fun updateGridColumns(columns: Int) = viewModelScope.launch { preferences.updateGridColumns(columns) }
+
     private val _connectionTestState = MutableStateFlow<ConnectionTestState>(ConnectionTestState.Idle)
     val connectionTestState: StateFlow<ConnectionTestState> = _connectionTestState.asStateFlow()
 

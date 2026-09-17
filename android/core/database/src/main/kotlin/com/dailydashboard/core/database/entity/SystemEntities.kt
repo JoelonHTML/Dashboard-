@@ -12,6 +12,9 @@ data class SystemStatsEntity(
     val diskUsedPercent: Double?,
     val rxSecBytes: Long?,
     val txSecBytes: Long?,
+    val batteryPercent: Int?,
+    val batteryCharging: Boolean?,
+    val cpuTempCelsius: Double?,
     val uptimeSeconds: Double,
     val updatedAt: String,
 )

@@ -14,6 +14,8 @@ data class Fs25StatsEntity(
     val maxPlayers: Int?,
     /** JSON-array van spelersnamen ["Naam1","Naam2"] — geen aparte tabel nodig voor dit lijstje. */
     val playerNamesJson: String,
+    /** Minuten sinds het begin van de in-game dag (0..1439), voor de dagvoortgang-gauge. */
+    val inGameDayMinute: Int?,
     val version: String?,
     val updatedAt: String,
 )

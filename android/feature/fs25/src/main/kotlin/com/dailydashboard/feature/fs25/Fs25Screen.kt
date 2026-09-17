@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dailydashboard.core.datastore.model.DataSource
 import com.dailydashboard.core.ui.widgets.CalloutCard
 import com.dailydashboard.core.ui.widgets.ChartCard
+import com.dailydashboard.core.ui.widgets.GaugeCard
 import com.dailydashboard.core.ui.widgets.ListCard
 import com.dailydashboard.core.ui.widgets.ListRowData
 import com.dailydashboard.core.ui.widgets.StatCard
@@ -53,6 +54,12 @@ fun Fs25WidgetContent(
             } else {
                 "FS25-server offline"
             },
+            modifier = modifier,
+        )
+
+        DataSource.FS25_DAY_PROGRESS -> GaugeCard(
+            title = "FS25-dagvoortgang",
+            progress = stats?.inGameDayProgress ?: 0f,
             modifier = modifier,
         )
 

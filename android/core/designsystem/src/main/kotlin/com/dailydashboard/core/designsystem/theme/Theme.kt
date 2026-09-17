@@ -49,15 +49,17 @@ val LocalDashboardColors = compositionLocalOf { DayScheme }
 @Composable
 fun DashboardTheme(
     isNight: Boolean,
+    accentColorOverride: Color? = null,
     content: @Composable () -> Unit,
 ) {
     val target = if (isNight) NightScheme else DayScheme
+    val targetAccent = accentColorOverride ?: target.accent
 
     val colors = DashboardColorScheme(
         background = animateColorAsState(target.background, tween(320), label = "background").value,
         surface = animateColorAsState(target.surface, tween(320), label = "surface").value,
         surfaceBorder = animateColorAsState(target.surfaceBorder, tween(320), label = "surfaceBorder").value,
-        accent = animateColorAsState(target.accent, tween(320), label = "accent").value,
+        accent = animateColorAsState(targetAccent, tween(320), label = "accent").value,
         alert = animateColorAsState(target.alert, tween(320), label = "alert").value,
         textPrimary = animateColorAsState(target.textPrimary, tween(320), label = "textPrimary").value,
         textSecondary = animateColorAsState(target.textSecondary, tween(320), label = "textSecondary").value,

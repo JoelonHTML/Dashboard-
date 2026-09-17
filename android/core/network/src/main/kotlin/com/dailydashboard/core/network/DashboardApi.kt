@@ -3,8 +3,10 @@ package com.dailydashboard.core.network
 import com.dailydashboard.core.network.model.CalendarResponse
 import com.dailydashboard.core.network.model.Fs25StatsResponse
 import com.dailydashboard.core.network.model.HealthResponse
+import com.dailydashboard.core.network.model.NsDeparturesResponse
 import com.dailydashboard.core.network.model.RemindersResponse
 import com.dailydashboard.core.network.model.SystemStatsResponse
+import com.dailydashboard.core.network.model.WeatherResponse
 import retrofit2.http.GET
 
 interface DashboardApi {
@@ -22,4 +24,10 @@ interface DashboardApi {
 
     @GET("/api/reminders")
     suspend fun getReminders(): RemindersResponse
+
+    @GET("/api/ns")
+    suspend fun getNsDepartures(): NsDeparturesResponse
+
+    @GET("/api/weather")
+    suspend fun getWeather(): WeatherResponse
 }
