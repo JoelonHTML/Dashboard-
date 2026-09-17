@@ -13,17 +13,19 @@ $arch = if ([Environment]::Is64BitOperatingSystem) { "win64" } else { "win32" }
 $nssmExe = Join-Path $backendDir "scripts\.tools\nssm-2.24\$arch\nssm.exe"
 
 $existing = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
-if (-not $existing) {
-    Write-Host "Service '$serviceName' bestaat niet (meer) — niets te doen."
-    exit 0
-}
-
-if (Test-Path $nssmExe) {
-    & $nssmExe stop $serviceName confirm | Out-Null
-    & $nssmExe remove $serviceName confirm | Out-Null
+if ($existing) {
+    if (Test-Path $nssmExe) {
+        & $nssmExe stop $serviceName confirm | Out-Null
+        & $nssmExe remove $serviceName confirm | Out-Null
+    } else {
+        Stop-Service -Name $serviceName -Force -ErrorAction SilentlyContinue
+        sc.exe delete $serviceName | Out-Null
+    }
+    Write-Host "Service '$serviceName' verwijderd." -ForegroundColor Green
 } else {
-    Stop-Service -Name $serviceName -Force -ErrorAction SilentlyContinue
-    sc.exe delete $serviceName | Out-Null
+    Write-Host "Service '$serviceName' bestaat niet (meer)."
 }
 
-Write-Host "Service '$serviceName' verwijderd." -ForegroundColor Green
+Get-NetFirewallRule -DisplayName "Daily Dashboard backend*" -ErrorAction SilentlyContinue |
+    Remove-NetFirewallRule
+Write-Host "Firewall-regel(s) opgeruimd." -ForegroundColor Green

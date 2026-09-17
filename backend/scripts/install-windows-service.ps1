@@ -59,7 +59,20 @@ CACHE_TTL_SECONDS=30
     Write-Host "`n.env bestaat al, die laat ik ongemoeid."
 }
 
-# 4. NSSM downloaden (indien nodig)
+$envPort = "4000"
+$portLine = Select-String -Path $envPath -Pattern "^PORT=(.+)$" -ErrorAction SilentlyContinue
+if ($portLine) { $envPort = $portLine.Matches[0].Groups[1].Value.Trim() }
+
+# 4. Firewall openzetten, anders kan de tablet niet binnenkomen ook al draait alles
+$fwRuleName = "Daily Dashboard backend ($envPort)"
+if (-not (Get-NetFirewallRule -DisplayName $fwRuleName -ErrorAction SilentlyContinue)) {
+    Write-Host "`nFirewall-regel toevoegen voor poort $envPort (inkomend, TCP)..."
+    New-NetFirewallRule -DisplayName $fwRuleName -Direction Inbound -LocalPort $envPort -Protocol TCP -Action Allow | Out-Null
+} else {
+    Write-Host "`nFirewall-regel voor poort $envPort bestaat al."
+}
+
+# 5. NSSM downloaden (indien nodig)
 $toolsDir = Join-Path $backendDir "scripts\.tools"
 New-Item -ItemType Directory -Force -Path $toolsDir | Out-Null
 $arch = if ([Environment]::Is64BitOperatingSystem) { "win64" } else { "win32" }
@@ -78,7 +91,7 @@ if (-not (Test-Path $nssmExe)) {
 }
 Write-Host "NSSM gereed: $nssmExe"
 
-# 5. Service (opnieuw) registreren
+# 6. Service (opnieuw) registreren
 $existing = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
 if ($existing) {
     Write-Host "`nService '$serviceName' bestaat al — stoppen en verwijderen voor een schone herinstallatie..."
@@ -99,12 +112,15 @@ Write-Host "`nService '$serviceName' installeren..."
 Start-Sleep -Seconds 2
 $status = Get-Service -Name $serviceName
 
-$envPort = "4000"
-$portLine = Select-String -Path $envPath -Pattern "^PORT=(.+)$" -ErrorAction SilentlyContinue
-if ($portLine) { $envPort = $portLine.Matches[0].Groups[1].Value.Trim() }
+$lanIp = (Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+    Where-Object { $_.IPAddress -notlike "127.*" -and $_.IPAddress -notlike "169.254.*" } |
+    Select-Object -First 1 -ExpandProperty IPAddress)
 
 Write-Host "`n== Klaar ==" -ForegroundColor Green
 Write-Host "Service '$serviceName' status: $($status.Status)"
 Write-Host "Logbestand: $backendDir\service.log"
-Write-Host "Test in de browser: http://localhost:$envPort/api/health"
+Write-Host "Test in de browser (op deze laptop): http://localhost:$envPort/api/health"
+if ($lanIp) {
+    Write-Host "Adres voor de tablet-app (instellingen -> backend-adres): http://${lanIp}:$envPort" -ForegroundColor Cyan
+}
 Write-Host "Beheer de service via services.msc, of met 'nssm' vanaf $nssmExe."
