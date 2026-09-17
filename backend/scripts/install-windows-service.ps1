@@ -6,9 +6,22 @@
   automatisch opstart (ook zonder ingelogde gebruiker) en herstart bij een crash.
 
 .USAGE
-  Rechtermuisklik dit bestand -> "Uitvoeren met PowerShell" (of open PowerShell
-  als Administrator en run: .\install-windows-service.ps1)
+  Interactief (vraagt om de drie links): rechtermuisklik -> "Uitvoeren met
+  PowerShell", of in een Administrator-PowerShell: .\install-windows-service.ps1
+
+  Non-interactief (bv. vanuit Claude Code of een ander script):
+  .\install-windows-service.ps1 -Fs25Url "..." -CalendarUrl "..." -RemindersUrl "..." -Port 4000
+  Weggelaten parameters blijven leeg in .env (later handmatig aan te vullen)
+  in plaats van dat er om invoer gevraagd wordt.
 #>
+
+param(
+    [string]$Fs25Url,
+    [string]$CalendarUrl,
+    [string]$RemindersUrl,
+    [string]$Port,
+    [switch]$NonInteractive
+)
 
 $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -36,14 +49,21 @@ Pop-Location
 # 3. .env aanmaken/aanvullen
 $envPath = Join-Path $backendDir ".env"
 if (-not (Test-Path $envPath)) {
-    Write-Host "`nGeen .env gevonden — die maken we nu aan. Druk Enter om een veld leeg/standaard te laten." -ForegroundColor Yellow
+    $port = $Port
+    $fs25Url = $Fs25Url
+    $calendarUrl = $CalendarUrl
+    $remindersUrl = $RemindersUrl
 
-    $port = Read-Host "Poort voor de backend [4000]"
+    if (-not $NonInteractive) {
+        Write-Host "`nGeen .env gevonden — die maken we nu aan. Druk Enter om een veld leeg/standaard te laten." -ForegroundColor Yellow
+        if ([string]::IsNullOrWhiteSpace($port)) { $port = Read-Host "Poort voor de backend [4000]" }
+        if ([string]::IsNullOrWhiteSpace($fs25Url)) { $fs25Url = Read-Host "FS25 stats-feed URL (leeg = later zelf invullen in .env)" }
+        if ([string]::IsNullOrWhiteSpace($calendarUrl)) { $calendarUrl = Read-Host "Publieke iCloud-agenda .ics-link (leeg = later invullen)" }
+        if ([string]::IsNullOrWhiteSpace($remindersUrl)) { $remindersUrl = Read-Host "Publieke iCloud-Herinneringen .ics-link (leeg = later invullen)" }
+    } else {
+        Write-Host "`nGeen .env gevonden — die maken we aan met de meegegeven parameters (non-interactief)." -ForegroundColor Yellow
+    }
     if ([string]::IsNullOrWhiteSpace($port)) { $port = "4000" }
-
-    $fs25Url = Read-Host "FS25 stats-feed URL (leeg = later zelf invullen in .env)"
-    $calendarUrl = Read-Host "Publieke iCloud-agenda .ics-link (leeg = later invullen)"
-    $remindersUrl = Read-Host "Publieke iCloud-Herinneringen .ics-link (leeg = later invullen)"
 
     @"
 LAN_HOST=0.0.0.0
