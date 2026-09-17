@@ -3,6 +3,7 @@ package com.dailydashboard.app.widgetgrid
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -47,6 +48,7 @@ private val dataSourceLabels = mapOf(
 )
 
 /** Kiezer met alle vijf widget-types; per type alleen de databronnen die erbij passen. */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddWidgetSheet(
     onDismiss: () -> Unit,
