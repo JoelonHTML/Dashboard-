@@ -7,6 +7,7 @@ const { createCalendarRouter } = require("./routes/calendar");
 const { createRemindersRouter } = require("./routes/reminders");
 const { createNsRouter } = require("./routes/ns");
 const { createWeatherRouter } = require("./routes/weather");
+const { createActionsRouter } = require("./routes/actions");
 
 const PORT = Number(process.env.PORT ?? 4000);
 const LAN_HOST = process.env.LAN_HOST ?? "0.0.0.0";
@@ -27,6 +28,7 @@ app.use("/api/calendar", createCalendarRouter(SLOW_CACHE_TTL_SECONDS));
 app.use("/api/reminders", createRemindersRouter(SLOW_CACHE_TTL_SECONDS));
 app.use("/api/ns", createNsRouter(SLOW_CACHE_TTL_SECONDS));
 app.use("/api/weather", createWeatherRouter(SLOW_CACHE_TTL_SECONDS));
+app.use("/api/actions", createActionsRouter());
 
 app.listen(PORT, LAN_HOST, () => {
   console.log(`Dashboard-backend luistert op http://${LAN_HOST}:${PORT}`);
