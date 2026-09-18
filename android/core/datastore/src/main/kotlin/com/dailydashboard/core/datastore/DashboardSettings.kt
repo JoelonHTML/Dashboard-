@@ -8,7 +8,7 @@ package com.dailydashboard.core.datastore
  * [gridColumns] bepaalt hoeveel kolommen de widget-grid heeft (2..6).
  */
 data class DashboardSettings(
-    val backendBaseUrl: String = "http://192.168.1.50:4000",
+    val backendBaseUrl: String = "http://192.168.1.43:4000",
     val pollIntervalSeconds: Int = 3,
     val nightModeEnabled: Boolean = true,
     val nightStartMinute: Int = 22 * 60,
