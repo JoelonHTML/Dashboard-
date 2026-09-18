@@ -17,6 +17,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -24,12 +26,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import com.dailydashboard.app.settings.SettingsSheet
 import com.dailydashboard.app.update.UpdateBanner
 import com.dailydashboard.app.update.UpdateViewModel
@@ -67,6 +71,8 @@ fun DashboardApp() {
     var showAddSheet by remember { mutableStateOf(false) }
     var showSettingsSheet by remember { mutableStateOf(false) }
     var hasLoaded by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     val accentColorOverride = remember(uiState.settings.accentColorHex) {
         uiState.settings.accentColorHex?.let { hex ->
@@ -81,6 +87,7 @@ fun DashboardApp() {
 
         Scaffold(
             containerColor = DashboardTheme.colors.background,
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 Column {
                     TopAppBar(
@@ -141,6 +148,7 @@ fun DashboardApp() {
                 onWidgetChosen = { dataSource ->
                     viewModel.addWidget(dataSource)
                     showAddSheet = false
+                    coroutineScope.launch { snackbarHostState.showSnackbar("Widget toegevoegd") }
                 },
             )
         }

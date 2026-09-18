@@ -48,6 +48,7 @@ fun SystemWidgetContent(
         DataSource.CPU_HISTORY -> ChartCard(
             title = "CPU-historie",
             values = stats?.cpuHistory ?: emptyList(),
+            unit = "%",
             modifier = modifier,
         )
 
