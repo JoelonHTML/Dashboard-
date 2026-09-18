@@ -12,8 +12,22 @@ android {
         applicationId = "com.dailydashboard.app"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        // CI geeft -PversionCode/-PversionName mee (gelijk aan de run-nummer/release-tag) zodat
+        // de in-app updater nieuwe builds herkent; lokale builds vallen terug op vaste waarden.
+        versionCode = (project.findProperty("versionCode") as String?)?.toIntOrNull() ?: 1
+        versionName = project.findProperty("versionName") as String? ?: "1.0"
+    }
+
+    signingConfigs {
+        getByName("debug") {
+            // Vaste, in de repo meegeleverde debug-keystore (geen geheim, alleen de standaard
+            // debug-sleutel) — zonder dit ondertekent elke CI-run met een andere, opnieuw
+            // gegenereerde sleutel en mislukt elke update-installatie met een signature-mismatch.
+            storeFile = file("../debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
     }
 
     buildTypes {
@@ -57,6 +71,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.okhttp.core)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

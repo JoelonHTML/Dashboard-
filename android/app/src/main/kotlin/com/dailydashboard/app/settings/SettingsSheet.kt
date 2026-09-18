@@ -29,6 +29,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.dailydashboard.app.ConnectionTestState
+import com.dailydashboard.app.update.UpdateInfo
+import com.dailydashboard.app.update.UpdateState
 import com.dailydashboard.core.datastore.DashboardSettings
 import com.dailydashboard.core.designsystem.theme.DashboardTheme
 import java.time.LocalTime
@@ -61,6 +63,10 @@ fun SettingsSheet(
     onResetLayout: () -> Unit,
     onAccentColorChanged: (String?) -> Unit,
     onGridColumnsChanged: (Int) -> Unit,
+    updateState: UpdateState,
+    onCheckForUpdate: () -> Unit,
+    onDownloadUpdate: (UpdateInfo) -> Unit,
+    onInstallUpdate: (apkPath: String) -> Unit,
 ) {
     var backendUrl by remember(settings.backendBaseUrl) { mutableStateOf(settings.backendBaseUrl) }
     var startText by remember(settings.nightStartMinute) { mutableStateOf(minuteToText(settings.nightStartMinute)) }
@@ -74,6 +80,15 @@ fun SettingsSheet(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(text = "Instellingen", style = MaterialTheme.typography.titleMedium)
+
+            UpdateSection(
+                state = updateState,
+                onCheckForUpdate = onCheckForUpdate,
+                onDownloadUpdate = onDownloadUpdate,
+                onInstallUpdate = onInstallUpdate,
+            )
+
+            HorizontalDivider()
 
             OutlinedTextField(
                 value = backendUrl,
@@ -200,6 +215,70 @@ private fun AccentSwatch(
             )
             .clickable(onClick = onClick),
     ) {}
+}
+
+@Composable
+private fun UpdateSection(
+    state: UpdateState,
+    onCheckForUpdate: () -> Unit,
+    onDownloadUpdate: (UpdateInfo) -> Unit,
+    onInstallUpdate: (apkPath: String) -> Unit,
+) {
+    val colors = DashboardTheme.colors
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(text = "Software-update", style = MaterialTheme.typography.bodyMedium)
+
+        when (state) {
+            UpdateState.Idle, UpdateState.UpToDate -> Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = if (state == UpdateState.UpToDate) "Je hebt de laatste versie" else "Nog niet gecontroleerd",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.textSecondary,
+                )
+                OutlinedButton(onClick = onCheckForUpdate) { Text("Zoek naar updates") }
+            }
+
+            UpdateState.Checking -> Text(
+                text = "Controleren op updates…",
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.textSecondary,
+            )
+
+            is UpdateState.Available -> Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(text = "Update ${state.info.versionLabel} beschikbaar", style = MaterialTheme.typography.bodyMedium)
+                OutlinedButton(onClick = { onDownloadUpdate(state.info) }) { Text("Downloaden") }
+            }
+
+            is UpdateState.Downloading -> Text(
+                text = "Downloaden… ${(state.progress * 100).toInt()}%",
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.textSecondary,
+            )
+
+            is UpdateState.ReadyToInstall -> Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(text = "Update ${state.info.versionLabel} gedownload", style = MaterialTheme.typography.bodyMedium)
+                OutlinedButton(onClick = { onInstallUpdate(state.apkPath) }) { Text("Installeren") }
+            }
+
+            is UpdateState.Error -> Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(text = "Fout: ${state.message}", style = MaterialTheme.typography.bodyMedium, color = colors.alert)
+                OutlinedButton(onClick = onCheckForUpdate) { Text("Opnieuw proberen") }
+            }
+        }
+    }
 }
 
 @Composable

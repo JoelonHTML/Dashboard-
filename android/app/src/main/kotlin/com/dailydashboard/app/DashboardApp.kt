@@ -31,6 +31,8 @@ import androidx.activity.ComponentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.delay
 import com.dailydashboard.app.settings.SettingsSheet
+import com.dailydashboard.app.update.UpdateBanner
+import com.dailydashboard.app.update.UpdateViewModel
 import com.dailydashboard.app.widgetgrid.AddWidgetSheet
 import com.dailydashboard.app.widgetgrid.WidgetGrid
 import com.dailydashboard.core.designsystem.theme.DashboardTheme
@@ -50,6 +52,17 @@ fun DashboardApp() {
     val uiState by viewModel.uiState.collectAsState()
     val connectionTestState by viewModel.connectionTestState.collectAsState()
 
+    val updateViewModel: UpdateViewModel = viewModel(factory = UpdateViewModel.factory(context))
+    val updateState by updateViewModel.state.collectAsState()
+    val onInstallUpdate: (String) -> Unit = { apkPath ->
+        val intent = if (updateViewModel.needsInstallPermission()) {
+            updateViewModel.manageUnknownAppSourcesIntent()
+        } else {
+            updateViewModel.installApkIntent(apkPath)
+        }
+        context.startActivity(intent)
+    }
+
     var isEditMode by remember { mutableStateOf(false) }
     var showAddSheet by remember { mutableStateOf(false) }
     var showSettingsSheet by remember { mutableStateOf(false) }
@@ -63,26 +76,35 @@ fun DashboardApp() {
 
     DashboardTheme(isNight = uiState.isNight, accentColorOverride = accentColorOverride) {
         LaunchedEffectOnce { hasLoaded = true }
+        LaunchedEffectOnce { updateViewModel.checkForUpdate() }
         DimScreenForNightMode(isNight = uiState.isNight)
 
         Scaffold(
             containerColor = DashboardTheme.colors.background,
             topBar = {
-                TopAppBar(
-                    title = { LiveClockTitle() },
-                    actions = {
-                        androidx.compose.material3.IconButton(onClick = { showSettingsSheet = true }) {
-                            Icon(Icons.Filled.Settings, contentDescription = "Instellingen")
-                        }
-                        androidx.compose.material3.IconButton(onClick = { isEditMode = !isEditMode }) {
-                            Icon(Icons.Filled.Edit, contentDescription = "Bewerkmodus")
-                        }
-                    },
-                    colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
-                        containerColor = DashboardTheme.colors.background,
-                        titleContentColor = DashboardTheme.colors.textPrimary,
-                    ),
-                )
+                Column {
+                    TopAppBar(
+                        title = { LiveClockTitle() },
+                        actions = {
+                            androidx.compose.material3.IconButton(onClick = { showSettingsSheet = true }) {
+                                Icon(Icons.Filled.Settings, contentDescription = "Instellingen")
+                            }
+                            androidx.compose.material3.IconButton(onClick = { isEditMode = !isEditMode }) {
+                                Icon(Icons.Filled.Edit, contentDescription = "Bewerkmodus")
+                            }
+                        },
+                        colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
+                            containerColor = DashboardTheme.colors.background,
+                            titleContentColor = DashboardTheme.colors.textPrimary,
+                        ),
+                    )
+                    UpdateBanner(
+                        state = updateState,
+                        onDownload = { info -> updateViewModel.downloadAndPrepareInstall(info) },
+                        onInstall = onInstallUpdate,
+                        onDismiss = { updateViewModel.dismiss() },
+                    )
+                }
             },
             floatingActionButton = {
                 if (isEditMode) {
@@ -137,6 +159,10 @@ fun DashboardApp() {
                 onResetLayout = viewModel::resetToDefaultLayout,
                 onAccentColorChanged = viewModel::updateAccentColor,
                 onGridColumnsChanged = viewModel::updateGridColumns,
+                updateState = updateState,
+                onCheckForUpdate = { updateViewModel.checkForUpdate() },
+                onDownloadUpdate = { info -> updateViewModel.downloadAndPrepareInstall(info) },
+                onInstallUpdate = onInstallUpdate,
             )
         }
     }
